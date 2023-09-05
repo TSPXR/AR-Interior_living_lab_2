@@ -1,4 +1,7 @@
 import { GLTFLoader } from './three.js/loaders/GLTFLoader.js';
+import { DepthTexture } from './three.js/three.module.js';
+import { TriangleController } from './triangle.js';
+import { getArrowHelper } from './arrowHelper.js';
 
 const renderArea = document.querySelector("#camera-render-area");
 const loadingArea = document.querySelector("#loading");
@@ -6,6 +9,13 @@ const loadingArea = document.querySelector("#loading");
 const userAgent = navigator.userAgent.toLowerCase();
 
 let isIOS, isMobile;
+let triangleObject;
+let baseObject;
+let secondTriangle;
+
+const triangleController = new TriangleController(0.5);
+const arrowHelpers = getArrowHelper(1); // 1 유닛 길이의 화살표를 반환받습니다.
+let globalCamera;
 
 function getUserAgent() {
     if (userAgent.match("iphone") || userAgent.match("ipad") || userAgent.match("ipod") || userAgent.match("mac")) {
@@ -25,21 +35,6 @@ function getLogTitle(text) {
 }
 
 const imageTargetPipelineModule = () => {
-    let videoFile = "./assets/vid/video_ver01.mp4";
-
-    const loader = new GLTFLoader();
-
-    let video, videoObj;
-
-    let sound = new Audio("./assets/sound/waves.mp3");
-    sound.pause();
-    sound.currentTime = 0;
-
-    let vh = 740;
-    let vw = 1080;
-    let vRatio = vw / vh;
-    let scale = 0.76;
-
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
 
@@ -49,54 +44,92 @@ const imageTargetPipelineModule = () => {
     }
 
     const initXrScene = ({scene, camera}) => {
+        // ArrowHelper
 
-        video = document.createElement("video");
+        // 각 화살표를 scene에 추가합니다.
+        arrowHelpers.forEach(arrowHelper => {
+            console.log(arrowHelper)
+            scene.add(arrowHelper);
+        });
 
-        video.src = videoFile;
-        video.muted = true;
-        video.loop = true;
-        video.playsInline = true;
-        video.preload = "auto";
-        video.setAttribute("webkit-playsinline", "");
+        baseObject = triangleController.createTriangle(triangleController.triangleSize);
+        secondTriangle = triangleController.createTriangle(triangleController.triangleSize);
 
-        const texture = new THREE.VideoTexture(video);
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.format = THREE.RGBAFormat;
-        texture.crossOrigin = "anonymous";
-
-        videoObj = new THREE.Mesh(
-            new THREE.PlaneGeometry(vRatio * scale, scale),
-            new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: true
-            })
-        );
-
-        videoObj.visible = false;
-        videoObj.name = "Gallery";
-        scene.add(videoObj);
-        video.load();
+        scene.add(baseObject);
+        scene.add(secondTriangle);
 
         const light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
         camera.position.set(0, 3, 0);
+        globalCamera = camera;
     }
 
 
     const showTarget = ({detail}) => {
-        console.log(detail)
-        if (detail.name === "GalleryBaton") {
-            videoObj.position.copy(detail.position);
-            videoObj.quaternion.copy(detail.rotation);
-            videoObj.scale.set(detail.scale, detail.scale, detail.scale);
-            videoObj.visible = true;
+        // console.log(detail)
+        if (detail.name === "ar_marker_resized") {
+            let currentMarkerPosition = detail.position;
+            let currentMarkerQuaternion = detail.rotation;
+
+            arrowHelpers[0].position.copy(currentMarkerPosition);
+            // arrowHelpers[0].quaternion.copy(currentMarkerQuaternion);
+            arrowHelpers[0].scale.set(detail.scale, detail.scale, detail.scale);
+
+            arrowHelpers[1].position.copy(currentMarkerPosition);
+            // arrowHelpers[1].quaternion.copy(currentMarkerQuaternion);
+            arrowHelpers[1].scale.set(detail.scale, detail.scale, detail.scale);
+
+            arrowHelpers[2].position.copy(currentMarkerPosition);
+            // arrowHelpers[2].quaternion.copy(currentMarkerQuaternion);
+            arrowHelpers[2].scale.set(detail.scale, detail.scale, detail.scale);
+
+            baseObject.position.copy(currentMarkerPosition);
+            baseObject.quaternion.copy(currentMarkerQuaternion);
+            
+            secondTriangle.position.copy(detail.position);
+            secondTriangle.quaternion.copy(detail.rotation);
+
+            secondTriangle.position.x = detail.position.x + triangleController.triangleHeight;
+            secondTriangle.position.z = detail.position.z - (0.5 * triangleController.triangleSize);
+            
+            // 쿼터니언각을 오일러각으로 변환 뒤 z축 기준으로 180도 회전해서 다시 쿼터니언으로 변환
+            const euler = new THREE.Euler();
+            euler.setFromQuaternion(secondTriangle.quaternion, 'XYZ');
+            euler.z += Math.PI;
+
+            const additionalQuaternion = new THREE.Quaternion().setFromEuler(euler);
+            console.log(secondTriangle.quaternion);
+            console.log(additionalQuaternion);
+            secondTriangle.quaternion.x = additionalQuaternion.x;
+            secondTriangle.quaternion.y = additionalQuaternion.y;
+            secondTriangle.quaternion.z = additionalQuaternion.z;
+            secondTriangle.quaternion.w = additionalQuaternion.w;
+
+            console.log(baseObject.quaternion.w - secondTriangle.quaternion.w);
+            console.log(baseObject.quaternion.x - secondTriangle.quaternion.x);
+            console.log(baseObject.quaternion.y - secondTriangle.quaternion.y);
+            console.log(baseObject.quaternion.z - secondTriangle.quaternion.z);
+
+            // let markerPosition = triangleController.baseObject.position; // 포지션 x, y, z
+            // let markerRotation = detail.rotation; // 쿼터니언 w,x,y,z
+            
+            // markerPosition.x = markerPosition.x - triangleController.triangleHeight;
+            // secondTriangle.position.copy(markerPosition);
+            // secondTriangle.rotation.copy(markerRotation);
+
+            // console.log(detail.rotation, markerRotation);
+
+            // videoObj.scale.set(detail.scale, detail.scale, detail.scale);
+            // videoObj.visible = true;
+
+            // console.log(globalCamera.position);
+            // console.log(globalCamera.rotation);
         }
     }
 
     const hideTarget = ({detail}) => {
-        if (detail.name === "GalleryBaton") {
+        if (detail.name === "ar_marker_resized") {
             //video.pause()
             //videoObj.visible = false
         }
@@ -118,16 +151,18 @@ const imageTargetPipelineModule = () => {
             onPointerMove(event);
             raycaster.setFromCamera(pointer, camera);
             const intersection = raycaster.intersectObjects(scene.children);
+            
+            // console.log(intersection.length);
+            console.log(pointer);
+            // if (intersection) {
+            //     sound.play();
+            // }
 
-            if (intersection) {
-                sound.play();
-            }
-
-            for (let i = 0; i < intersection.length; i++) {
-                if (intersection[i].object.name == "Gallery") {
-                    video.play();
-                }
-            }
+            // for (let i = 0; i < intersection.length; i++) {
+            //     if (intersection[i].object.name == "Gallery") {
+            //         video.play();
+            //     }
+            // }
         })
 
         canvas.addEventListener('touchmove', (event) => {
