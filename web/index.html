@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AR Gallery Baton</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="google" content="notranslate">
+    <meta name="theme-color" content="#4383FA">
+
+    <link rel="stylesheet" href="./styles/index.css" />
+
+    <script type="text/javascript" src="./modules/live.js"></script>
+
+    <script src="./modules/three.js/three.min.js"></script>
+
+    <script src="https://cdn.8thwall.com/web/xrextras/xrextras.js"></script>
+    <script async src="https://apps.8thwall.com/xrweb?appKey=sADypHMFn1JXENgbUOo3aLjshn7cOak5dmYf5TJi8Cw0L5TAvRL2bOBRmdIshlqaUtGzxB"></script>
+
+
+    <script type="module" src="./modules/index.js"></script>
+
+</head>
+<body>
+    <div id="loading">
+        <div class="logo">
+            <img src="./assets/img/logo.png">
+        </div>
+    </div>
+
+    <div id="debug">
+        <span id="debug-text"></span>
+    </div>
+
+    <div id="ar-container">
+        <canvas class="render" id="camera-render-area"></canvas>
+    </div>
+</body>
+</html>

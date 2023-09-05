@@ -1,0 +1,176 @@
+/* NanumSquare */
+@font-face {
+	font-family: "NanumSquare";
+	font-weight: 400;
+	src: url("../assets/font/NanumSquareR.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareR.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareR.woff2") format("woff2"),
+		url("../assets/font/NanumSquareR.woff") format("woff"),
+		url("../assets/font/NanumSquareR.ttf") format("truetype");
+}
+@font-face {
+	font-family: "NanumSquare";
+	font-weight: 700;
+	src: url("../assets/font/NanumSquareB.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareB.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareB.woff2") format("woff2"),
+		url("../assets/font/NanumSquareB.woff") format("woff"),
+		url("../assets/font/NanumSquareB.ttf") format("truetype");
+}
+@font-face {
+	font-family: "NanumSquare";
+	font-weight: 800;
+	src: url("../assets/font/NanumSquareEB.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareEB.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareEB.woff2") format("woff2"),
+		url("../assets/font/NanumSquareEB.woff") format("woff"),
+		url("../assets/font/NanumSquareEB.ttf") format("truetype");
+}
+@font-face {
+	font-family: "NanumSquare";
+	font-weight: 300;
+	src: url("../assets/font/NanumSquareL.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareL.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareL.woff2") format("woff2"),
+		url("../assets/font/NanumSquareL.woff") format("woff"),
+		url("../assets/font/NanumSquareL.ttf") format("truetype");
+}
+/* NanumSquare AC */
+@font-face {
+	font-family: "NanumSquareAc";
+	font-weight: 300;
+	src: url("../assets/font/NanumSquareAcL.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareAcL.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareAcL.woff2") format("woff2"),
+		url("../assets/font/NanumSquareAcL.woff") format("woff"),
+		url("../assets/font/NanumSquareAcL.ttf") format("truetype");
+}
+@font-face {
+	font-family: "NanumSquareAc";
+	font-weight: 400;
+	src: url("../assets/font/NanumSquareAcR.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareAcR.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareAcR.woff2") format("woff2"),
+		url("../assets/font/NanumSquareAcR.woff") format("woff"),
+		url("../assets/font/NanumSquareAcR.ttf") format("truetype");
+}
+@font-face {
+	font-family: "NanumSquareAc";
+	font-weight: 700;
+	src: url("../assets/font/NanumSquareAcB.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareAcB.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareAcB.woff2") format("woff2"),
+		url("../assets/font/NanumSquareAcB.woff") format("woff"),
+		url("../assets/font/NanumSquareAcB.ttf") format("truetype");
+	}
+@font-face {
+	font-family: "NanumSquareAc";
+	font-weight: 800;
+	src: url("../assets/font/NanumSquareAcEB.eot");
+	src: local("☺"),
+		url("../assets/font/NanumSquareAcEB.eot?#iefix") format("embedded-opentype"),
+		url("../assets/font/NanumSquareAcEB.woff2") format("woff2"),
+		url("../assets/font/NanumSquareAcEB.woff") format("woff"),
+		url("../assets/font/NanumSquareAcEB.ttf") format("truetype");
+}
+
+html, body {
+	margin: 0 auto;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color:rgba(0, 0, 0, 0);
+	user-select: none;
+	background-color: #000000;
+	-webkit-text-size-adjust : none;
+	-webkit-font-smoothing: antialiased;
+	-ms-text-size-adjust : none;
+	-moz-text-size-adjust : none;
+	-o-text-size-adjust : none;
+	touch-action: pan-y;
+
+	font-family: "NanumSquareAC";
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#loadingContainer {
+	display: none;
+	opacity: 0;
+}
+
+#loading {
+	width: 100%;
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	background-color: #303030;
+	z-index: 9999999;
+}
+
+#loading .logo {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#loading img {
+	position: absolute;
+    width: 50%;
+}
+
+#loading span{
+	position: absolute;
+	font-weight: bold;
+	color: #EEEEEE;
+	font-size: 1em;
+	bottom: 25%;
+}
+
+#ar-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+
+#base-video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover;
+	background-color: #222831;
+	z-index: 2;
+}
+
+#camera-render-area {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 100;
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover;
+	z-index: 3;
+}
