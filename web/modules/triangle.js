@@ -6,7 +6,7 @@ class TriangleController {
         console.log('triangleHeight', this.triangleHeight);
         this.group = new THREE.Group();;
 
-        this.gridSize = 100;
+        this.gridSize = 1000;
         this.triangles = Array(this.gridSize).fill(null).map(() => Array(this.gridSize).fill(null));
         this.currentX = Math.floor(this.gridSize / 2); // 초기값 = gridSize가 100일 때 50
         this.currentY = Math.floor(this.gridSize / 2); // 초기값 = gridSize가 100일 때 50
@@ -17,6 +17,9 @@ class TriangleController {
     init() {
         this.triangles[this.currentY][this.currentX] = this.createTriangle();
         this.group.add(this.triangles[this.currentY][this.currentX]);
+        console.log(this.triangles[0][0]);
+
+        this.group.add(new THREE.AmbientLight(0x404040))
     }
 
     touchEvent(arPointer) {
@@ -64,16 +67,43 @@ class TriangleController {
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     
         // let material = new THREE.MeshBasicMateria1l({ color: 0x00ff00, side: THREE.DoubleSide });
-        let material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+        // let material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+        let material = new THREE.MeshPhongMaterial({ color: 0xff0000, vertexColors: true, side: THREE.DoubleSide });
+        
     
         let triangle = new THREE.Mesh(geometry, material);
         // triangle.rotation.x = Math.PI/2;
         return triangle;
     }
 
+    highlightCurrentTriangle() {
+        const currentTriangle = this.triangles[this.currentY][this.currentX];
+        if (currentTriangle) {
+            currentTriangle.material.transparent = false;
+            currentTriangle.material.opacity = 1;
+            currentTriangle.material.emissive.set(0x444444); // 적절한 값으로 조정
+        }
+        console.log(currentTriangle.material.transparent, currentTriangle.material.opacity);
+
+    }
+
+    unhighlightCurrentTriangle() {
+        const currentTriangle = this.triangles[this.currentY][this.currentX];
+        if (currentTriangle) {
+            console.log(currentTriangle);
+            currentTriangle.material.transparent = false;
+            currentTriangle.material.opacity = 1;
+            currentTriangle.material.emissive.set(0x000000); // 에미시브 값을 초기값으로 설정
+        }
+    }
+    
+
     // 정삼각형 수직방향 이동(세로방향)
     verticalFlip(direction) {
-        let currentTriangle = this.triangles[this.currentY][this.currentX];
+        let newX = this.currentX;
+        let newY = this.currentY;
+        
+        let currentTriangle = this.triangles[newY][newX];
         let newTriangle = this.createTriangle();
         
         /* 공통 적용 값 */
@@ -85,7 +115,7 @@ class TriangleController {
         /* y축 position 위치 조정 */
         if (direction == 'top') {
             newTriangle.position.y = currentTriangle.position.y + this.triangleSize;
-            this.currentY = this.currentY - 1;
+            newY = newY - 1;
 
             if (currentTriangle.rotation.z == 0) {    
                 newTriangle.position.y += this.triangleHeight
@@ -94,7 +124,7 @@ class TriangleController {
         }
         else 
         {
-            this.currentY = this.currentY + 1;
+            newY = newY + 1;
             newTriangle.position.y = currentTriangle.position.y - this.triangleSize;
             
             if (currentTriangle.rotation.z == Math.PI) {    
@@ -110,16 +140,24 @@ class TriangleController {
             newTriangle.rotation.z = 0;
         }
 
+        if (this.triangles[newY][newX] == null){
+            this.triangles[newY][newX] = newTriangle;
+            this.group.add(this.triangles[newY][newX]);
+        }
 
-        this.triangles[this.currentY][this.currentX] = newTriangle;
-        this.group.add(this.triangles[this.currentY][this.currentX]);
+        this.unhighlightCurrentTriangle();
+        this.currentX = newX;
+        this.currentY = newY;
+        this.highlightCurrentTriangle();
                 
     }
 
     // 정삼각형 수평방향 이동(가로방향)
     horizontalFlip(direction) {
-        
-        let currentTriangle = this.triangles[this.currentY][this.currentX];
+        let newX = this.currentX;
+        let newY = this.currentY;
+
+        let currentTriangle = this.triangles[newY][newX];
         let newTriangle = this.createTriangle();
 
         /* 공통 적용 값 */
@@ -131,13 +169,13 @@ class TriangleController {
         /* x축 position 위치 조정 */
         if (direction === 'right') {
             newTriangle.position.x = currentTriangle.position.x + this.triangleHeight;
-            this.currentX = this.currentX + 1;
+            newX = newX + 1;
         }
         
         // 왼쪽으로 삼각형 배치
         else {
             newTriangle.position.x = currentTriangle.position.x - this.triangleHeight;
-            this.currentX = this.currentX - 1;
+            newX = newX - 1;
         }
 
         /* y축 position 위치 조정 */
@@ -149,9 +187,16 @@ class TriangleController {
             newTriangle.position.y = currentTriangle.position.y - (0.5 * this.triangleSize);
             newTriangle.rotation.z = 0;
         }
-    
-        this.triangles[this.currentY][this.currentX] = newTriangle;
-        this.group.add(this.triangles[this.currentY][this.currentX]);
+
+        if (this.triangles[newY][newX] == null){
+            this.triangles[newY][newX] = newTriangle;
+            this.group.add(this.triangles[newY][newX]);
+        }
+
+        this.unhighlightCurrentTriangle();
+        this.currentX = newX;
+        this.currentY = newY;
+        this.highlightCurrentTriangle();
     }
 }
 export { TriangleController }
