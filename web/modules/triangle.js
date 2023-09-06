@@ -1,46 +1,57 @@
 class TriangleController {
     constructor(triangleSize) {
         this.triangleSize = triangleSize;
-        
         this.triangleHeight = triangleSize * Math.sqrt(3) / 2;
-        // this.triangles = [];
+        console.log('triangleSize', this.triangleSize);
+        console.log('triangleHeight', this.triangleHeight);
+        this.group = new THREE.Group();;
 
-        // 1. 2차원 배열 초기화
         this.gridSize = 100;
         this.triangles = Array(this.gridSize).fill(null).map(() => Array(this.gridSize).fill(null));
-        this.currentX = Math.floor(this.gridSize / 2);
-        this.currentY = Math.floor(this.gridSize / 2);
-        console.log(this.triangles)
-        console.log(this.currentX)
-        console.log(this.currentY)
-
-        // 기준 오브젝트
-        this.baseObject;
+        this.currentX = Math.floor(this.gridSize / 2); // 초기값 = gridSize가 100일 때 50
+        this.currentY = Math.floor(this.gridSize / 2); // 초기값 = gridSize가 100일 때 50
 
         this.init();
     }
-    
+
     init() {
-        // this.triangles.push(this.createTriangle(this.triangleSize));
-        // this.triangles[0].rotation.x = Math.PI/2;
-        console.log('init triangle module');
-        this.baseObject = this.createTriangle(this.triangleSize);
-        // this.baseObject.rotation.x = Math.PI/2;
-        this.triangles[this.currentY][this.currentX] = this.baseObject;
-        
+        this.triangles[this.currentY][this.currentX] = this.createTriangle();
+        this.group.add(this.triangles[this.currentY][this.currentX]);
     }
 
-    getCurrentXY() {
-        return [this.currentX, this.currentY]
-    }
+    touchEvent(arPointer) {
+        console.log('arPointer', arPointer);
+        let point = arPointer;
 
-    createTriangle(size) {
+        // 가로방향 배치
+        if (Math.abs(point.x) > Math.abs(point.y)) {
+            if (point.x > 0) {
+                this.horizontalFlip('right');
+                
+            }
+            else{
+                this.horizontalFlip('left');
+                
+            }
+        }
+        // 세로방향 배치
+        else {
+            if (point.y > 0) {
+                this.verticalFlip('top');
+            }
+            else {
+                this.verticalFlip('bottom');
+            }
+        }
+    }
+    
+    createTriangle() {
         let geometry = new THREE.BufferGeometry();
     
         let vertices = new Float32Array([
-            0, size, 0, 
-            -size * Math.sin(Math.PI / 3), -size * 0.5, 0,
-            size * Math.sin(Math.PI / 3), -size * 0.5, 0
+            0, this.triangleSize, 0, 
+            -this.triangleSize * Math.sin(Math.PI / 3), -this.triangleSize * 0.5, 0,
+            this.triangleSize * Math.sin(Math.PI / 3), -this.triangleSize * 0.5, 0
         ]);
     
         let colors = new Float32Array([
@@ -60,79 +71,87 @@ class TriangleController {
         return triangle;
     }
 
-    setTriangleLeftRight(currentTriangle, direction, newX, newY){
-        let newTriangle = this.createTriangle(this.triangleSize)
-        let zAxis;
-        newTriangle.rotation.x = Math.PI/2;
-    
-        if (currentTriangle.rotation.z == 0){
+    // 정삼각형 수직방향 이동(세로방향)
+    verticalFlip(direction) {
+        let currentTriangle = this.triangles[this.currentY][this.currentX];
+        let newTriangle = this.createTriangle();
+        
+        /* 공통 적용 값 */
+        newTriangle.position.x = currentTriangle.position.x;
+        newTriangle.position.z = currentTriangle.position.z;
+        newTriangle.rotation.x = 0;
+        newTriangle.rotation.y = 0;
+        
+        /* y축 position 위치 조정 */
+        if (direction == 'top') {
+            newTriangle.position.y = currentTriangle.position.y + this.triangleSize;
+            this.currentY = this.currentY - 1;
+
+            if (currentTriangle.rotation.z == 0) {    
+                newTriangle.position.y += this.triangleHeight
+            }
+
+        }
+        else 
+        {
+            this.currentY = this.currentY + 1;
+            newTriangle.position.y = currentTriangle.position.y - this.triangleSize;
+            
+            if (currentTriangle.rotation.z == Math.PI) {    
+                newTriangle.position.y -= this.triangleSize;
+            }
+        }
+
+        /* 180도 회전 */
+        if (currentTriangle.rotation.z == 0) {
             newTriangle.rotation.z = Math.PI;
-            zAxis = true;
         }
         else{
             newTriangle.rotation.z = 0;
-            zAxis = false;
         }
-    
-        if (direction == 'left'){
-            newTriangle.position.x = currentTriangle.position.x - this.triangleHeight;
-        }
-    
-        else{
-            newTriangle.position.x = currentTriangle.position.x + this.triangleHeight;
-        }
-    
-        if (zAxis){
-            newTriangle.position.z = currentTriangle.position.z + (0.5 * this.triangleSize);
-        }
-        else{
-            newTriangle.position.z = currentTriangle.position.z - (0.5 * this.triangleSize);
-        }
-        
-        this.triangles[newY][newX] = newTriangle
-        this.currentX = newX;
-        this.currentY = newY;
-        
-        this.baseObject.add(newTriangle);
-        return newTriangle
+
+
+        this.triangles[this.currentY][this.currentX] = newTriangle;
+        this.group.add(this.triangles[this.currentY][this.currentX]);
+                
     }
 
-    setTriangleTopDown(currentTriangle, position, newX, newY){
-        let newTriangle = this.createTriangle(this.triangleSize)
-        newTriangle.rotation.x = Math.PI/2;
+    // 정삼각형 수평방향 이동(가로방향)
+    horizontalFlip(direction) {
         
-        newTriangle.position.x = currentTriangle.position.x;
+        let currentTriangle = this.triangles[this.currentY][this.currentX];
+        let newTriangle = this.createTriangle();
 
-        if (currentTriangle.rotation.z == 0){
+        /* 공통 적용 값 */
+        newTriangle.position.z = currentTriangle.position.z;
+        newTriangle.rotation.x = 0;
+        newTriangle.rotation.y = 0;
+        
+
+        /* x축 position 위치 조정 */
+        if (direction === 'right') {
+            newTriangle.position.x = currentTriangle.position.x + this.triangleHeight;
+            this.currentX = this.currentX + 1;
+        }
+        
+        // 왼쪽으로 삼각형 배치
+        else {
+            newTriangle.position.x = currentTriangle.position.x - this.triangleHeight;
+            this.currentX = this.currentX - 1;
+        }
+
+        /* y축 position 위치 조정 */
+        if (currentTriangle.rotation.z == 0) {
+            newTriangle.position.y = currentTriangle.position.y + (0.5 * this.triangleSize);
             newTriangle.rotation.z = Math.PI;
-            newTriangle.position.z = currentTriangle.position.z - this.triangleSize;
         }
         else{
+            newTriangle.position.y = currentTriangle.position.y - (0.5 * this.triangleSize);
             newTriangle.rotation.z = 0;
-            newTriangle.position.z = currentTriangle.position.z + this.triangleSize;
         }
-
-        if (position == 'top'){
-            if (newTriangle.rotation.z == Math.PI){
-                this.triangles[newY][newX] = newTriangle
-                this.currentX = newX;
-                this.currentY = newY;
-            }
-        }
-
-        else {
-            if (newTriangle.rotation.z == 0){
-                this.triangles[newY][newX] = newTriangle
-                this.currentX = newX;
-                this.currentY = newY;
-            }
-        }
-        
-        console.log(this.currentX)
-        console.log(this.currentY);
-        this.baseObject.add(this.triangles[newY][newX]);
-        return newTriangle
+    
+        this.triangles[this.currentY][this.currentX] = newTriangle;
+        this.group.add(this.triangles[this.currentY][this.currentX]);
     }
 }
-
 export { TriangleController }
