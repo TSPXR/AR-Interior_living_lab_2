@@ -58,7 +58,7 @@ class TriangleController {
         geometry.computeVertexNormals();
 
         const textureLoader = new THREE.TextureLoader()
-        const triangleTexture = textureLoader.load('./assets/img/logo_1.png')
+        const triangleTexture = textureLoader.load('./assets/img/yellow.png')
 
         const material = new THREE.MeshPhongMaterial({ map: triangleTexture })
         material.shininess = 100
@@ -71,9 +71,10 @@ class TriangleController {
     highlightCurrentTriangle() {
         const currentTriangle = this.triangles[this.currentY][this.currentX];
         if (currentTriangle) {
-            currentTriangle.material.transparent = false;
-            currentTriangle.material.opacity = 1;
-            currentTriangle.material.emissive.set(0x444444); // 적절한 값으로 조정
+            // currentTriangle.material.transparent = false;
+            // currentTriangle.material.opacity = 1;
+            // currentTriangle.material.wireframe = true;
+            currentTriangle.material.emissive.set(0xFFFFFF); // 적절한 값으로 조정
         }
         console.log(currentTriangle.material.transparent, currentTriangle.material.opacity);
 
@@ -83,8 +84,9 @@ class TriangleController {
         const currentTriangle = this.triangles[this.currentY][this.currentX];
         if (currentTriangle) {
             console.log(currentTriangle);
-            currentTriangle.material.transparent = false;
-            currentTriangle.material.opacity = 1;
+            // currentTriangle.material.transparent = false;
+            // currentTriangle.material.opacity = 1;
+            // currentTriangle.material.wireframe = false;
             currentTriangle.material.emissive.set(0x000000); // 에미시브 값을 초기값으로 설정
         }
     }
@@ -110,12 +112,13 @@ class TriangleController {
             newY = newY - 1;
 
             if (currentTriangle.rotation.z == 0) {    
-                newTriangle.position.y += this.triangleHeight
+                newTriangle.position.y += this.triangleSize
             }
 
         }
         else 
         {
+            console.log('bottom');
             newY = newY + 1;
             newTriangle.position.y = currentTriangle.position.y - this.triangleSize;
             

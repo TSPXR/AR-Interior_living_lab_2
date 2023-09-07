@@ -10,7 +10,7 @@ const userAgent = navigator.userAgent.toLowerCase();
 
 let isIOS, isMobile;
 
-const triangleController = new TriangleController(0.5);
+const triangleController = new TriangleController(1);
 const arrowHelpers = getArrowHelper(1); // 1 유닛 길이의 화살표를 반환받습니다.
 
 function getUserAgent() {
@@ -53,11 +53,8 @@ const imageTargetPipelineModule = () => {
         const light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(1, 1, 1);
-        scene.add(directionalLight);
-
         camera.position.set(0, 3, 0);
+
 
     }
 
