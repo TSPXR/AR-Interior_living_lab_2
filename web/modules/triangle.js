@@ -17,9 +17,6 @@ class TriangleController {
     init() {
         this.triangles[this.currentY][this.currentX] = this.createTriangle();
         this.group.add(this.triangles[this.currentY][this.currentX]);
-        console.log(this.triangles[0][0]);
-
-        this.group.add(new THREE.AmbientLight(0x404040))
     }
 
     touchEvent(arPointer) {
@@ -57,22 +54,17 @@ class TriangleController {
             this.triangleSize * Math.sin(Math.PI / 3), -this.triangleSize * 0.5, 0
         ]);
     
-        let colors = new Float32Array([
-            1, 0, 0,  // 빨간색 (상단 꼭지점)
-            0, 1, 0,  // 초록색 (왼쪽 하단 꼭짓점)
-            0, 1, 0   // 초록색 (오른쪽 하단 꼭짓점)
-        ]);
-    
         geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    
-        // let material = new THREE.MeshBasicMateria1l({ color: 0x00ff00, side: THREE.DoubleSide });
-        // let material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
-        let material = new THREE.MeshPhongMaterial({ color: 0xff0000, vertexColors: true, side: THREE.DoubleSide });
+        geometry.computeVertexNormals();
+
+        const textureLoader = new THREE.TextureLoader()
+        const triangleTexture = textureLoader.load('./assets/img/logo_1.png')
+
+        const material = new THREE.MeshPhongMaterial({ map: triangleTexture })
+        material.shininess = 100
+        material.specular = new THREE.Color(0x1188ff)
         
-    
         let triangle = new THREE.Mesh(geometry, material);
-        // triangle.rotation.x = Math.PI/2;
         return triangle;
     }
 
