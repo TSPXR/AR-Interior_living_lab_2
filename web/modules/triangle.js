@@ -2,8 +2,6 @@ class TriangleController {
     constructor(triangleSize) {
         this.triangleSize = triangleSize;
         this.triangleHeight = triangleSize * Math.sqrt(3) / 2;
-        console.log('triangleSize', this.triangleSize);
-        console.log('triangleHeight', this.triangleHeight);
         this.group = new THREE.Group();;
 
         this.gridSize = 1000;
@@ -20,7 +18,6 @@ class TriangleController {
     }
 
     touchEvent(arPointer) {
-        console.log('arPointer', arPointer);
         let point = arPointer;
 
         // 가로방향 배치
@@ -76,14 +73,12 @@ class TriangleController {
             // currentTriangle.material.wireframe = true;
             currentTriangle.material.emissive.set(0xFFFFFF); // 적절한 값으로 조정
         }
-        console.log(currentTriangle.material.transparent, currentTriangle.material.opacity);
 
     }
 
     unhighlightCurrentTriangle() {
         const currentTriangle = this.triangles[this.currentY][this.currentX];
         if (currentTriangle) {
-            console.log(currentTriangle);
             // currentTriangle.material.transparent = false;
             // currentTriangle.material.opacity = 1;
             // currentTriangle.material.wireframe = false;
@@ -91,7 +86,6 @@ class TriangleController {
         }
     }
     
-
     // 정삼각형 수직방향 이동(세로방향)
     verticalFlip(direction) {
         let newX = this.currentX;
@@ -118,7 +112,6 @@ class TriangleController {
         }
         else 
         {
-            console.log('bottom');
             newY = newY + 1;
             newTriangle.position.y = currentTriangle.position.y - this.triangleSize;
             

@@ -1,17 +1,16 @@
-import { GLTFLoader } from './three.js/loaders/GLTFLoader.js';
-import { DepthTexture } from './three.js/three.module.js';
+// import { GLTFLoader } from './three.js/loaders/GLTFLoader.js';
+// import { DepthTexture } from './three.js/three.module.js';
 import { TriangleController } from './triangle.js';
-import { getArrowHelper } from './arrowHelper.js';
 
 const renderArea = document.querySelector("#camera-render-area");
+const saveButton = document.querySelector("#canvas-save-button");
 const loadingArea = document.querySelector("#loading");
 
 const userAgent = navigator.userAgent.toLowerCase();
 
 let isIOS, isMobile;
 
-const triangleController = new TriangleController(1);
-const arrowHelpers = getArrowHelper(1); // 1 유닛 길이의 화살표를 반환받습니다.
+const triangleController = new TriangleController(0.5);
 
 function getUserAgent() {
     if (userAgent.match("iphone") || userAgent.match("ipad") || userAgent.match("ipod") || userAgent.match("mac")) {
@@ -40,14 +39,6 @@ const imageTargetPipelineModule = () => {
     }
 
     const initXrScene = ({scene, camera}) => {
-        // ArrowHelper
-
-        // 각 화살표를 scene에 추가합니다.
-        arrowHelpers.forEach(arrowHelper => {
-            console.log(arrowHelper)
-            scene.add(arrowHelper);
-        });
-
         scene.add(triangleController.group);
 
         const light = new THREE.AmbientLight(0xFFFFFF);
@@ -58,24 +49,8 @@ const imageTargetPipelineModule = () => {
 
     }
 
-
     const showTarget = ({detail}) => {
-        // console.log(detail)
         if (detail.name === "ar_marker_resized") {
-            let currentMarkerPosition = detail.position;
-            let currentMarkerQuaternion = detail.rotation;
-
-            arrowHelpers[0].position.copy(detail.position);
-            arrowHelpers[0].scale.set(detail.scale, detail.scale, detail.scale);
-
-            arrowHelpers[1].position.copy(detail.position);
-            arrowHelpers[1].scale.set(detail.scale, detail.scale, detail.scale);
-
-            arrowHelpers[2].position.copy(detail.position);
-            arrowHelpers[2].scale.set(detail.scale, detail.scale, detail.scale);
-
-            // baseObject.quaternion.copy(currentMarkerQuaternion);
-
             triangleController.group.position.copy(detail.position);
             triangleController.group.quaternion.copy(detail.rotation);
         }
@@ -147,6 +122,14 @@ const onxrloaded = () => {
     ]);
     XR8.run({canvas: renderArea});
 }
+
+saveButton.addEventListener('click', function() {
+    // Canvas의 내용을 이미지로 변환합니다.
+    const link = document.createElement('a');
+    link.download = 'canvas_image.png';
+    link.href = renderArea.toDataURL();
+    link.click();
+});
 
 window.onload = async () => {
     getUserAgent();

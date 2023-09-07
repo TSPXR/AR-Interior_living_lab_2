@@ -174,3 +174,15 @@ html, body {
 	object-fit: cover;
 	z-index: 3;
 }
+
+#canvas-save-button {
+	position: absolute;
+	left: 10vw;
+	top: 80vh;
+	z-index: 101;
+	display: block;
+	/* width: 100% !important; */
+	/* height: 100% !important; */
+	object-fit: cover
+
+}
