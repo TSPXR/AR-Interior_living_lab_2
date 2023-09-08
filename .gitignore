@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# ignore directories
+server/saved_images/*
+
 # C extensions
 *.so
 
