@@ -1,5 +1,9 @@
 class TriangleController {
     constructor(triangleSize) {
+        /**
+         * TriangleController 생성자
+         * @param {number} triangleSize - 삼각형 크기
+         */
         this.triangleSize = triangleSize;
         this.triangleHeight = triangleSize * Math.sqrt(3) / 2;
         this.group = new THREE.Group();;
@@ -12,11 +16,18 @@ class TriangleController {
         this.init();
     }
 
+    /**
+     * 중앙 정삼각형 배치
+    */
     init() {
         this.triangles[this.currentY][this.currentX] = this.createTriangle();
         this.group.add(this.triangles[this.currentY][this.currentX]);
     }
 
+    /**
+     * 사용자의 입력에 따라 삼각형의 위치를 변경함
+     * @param {Object} arPointer - 사용자의 입력
+     */
     touchEvent(arPointer) {
         let point = arPointer;
 
@@ -42,6 +53,10 @@ class TriangleController {
         }
     }
     
+    /**
+     * 정삼각형을 생성 함수
+     * @returns {Object} 생성된 삼각형 객체
+     */
     createTriangle() {
         let geometry = new THREE.BufferGeometry();
     
@@ -65,28 +80,31 @@ class TriangleController {
         return triangle;
     }
 
+    /**
+     * 현재 선택된 정삼각형을 강조 효과를 추가하는 함수
+     */
     highlightCurrentTriangle() {
         const currentTriangle = this.triangles[this.currentY][this.currentX];
         if (currentTriangle) {
-            // currentTriangle.material.transparent = false;
-            // currentTriangle.material.opacity = 1;
-            // currentTriangle.material.wireframe = true;
             currentTriangle.material.emissive.set(0xFFFFFF); // 적절한 값으로 조정
         }
 
     }
 
+    /**
+     * 현재 선택된 정삼각형의 강조 효과를 제거하는 함수
+     */
     unhighlightCurrentTriangle() {
         const currentTriangle = this.triangles[this.currentY][this.currentX];
         if (currentTriangle) {
-            // currentTriangle.material.transparent = false;
-            // currentTriangle.material.opacity = 1;
-            // currentTriangle.material.wireframe = false;
-            currentTriangle.material.emissive.set(0x000000); // 에미시브 값을 초기값으로 설정
+            currentTriangle.material.emissive.set(0x000000);
         }
     }
     
-    // 정삼각형 수직방향 이동(세로방향)
+    /**
+     * 삼각형을 수직 방향으로 배치한다.
+     * @param {string} direction - 'top' 또는 'bottom' 방향.
+     */
     verticalFlip(direction) {
         let newX = this.currentX;
         let newY = this.currentY;
@@ -129,6 +147,8 @@ class TriangleController {
         }
 
         if (this.triangles[newY][newX] == null){
+            this.completeAnimation()
+            this.addAnimation(currentTriangle, newTriangle);
             this.triangles[newY][newX] = newTriangle;
             this.group.add(this.triangles[newY][newX]);
         }
@@ -140,7 +160,10 @@ class TriangleController {
                 
     }
 
-    // 정삼각형 수평방향 이동(가로방향)
+    /**
+     * 삼각형을 수평 방향으로 배치한다.
+     * @param {string} direction - 'top' 또는 'bottom' 방향.
+     */
     horizontalFlip(direction) {
         let newX = this.currentX;
         let newY = this.currentY;
@@ -177,6 +200,8 @@ class TriangleController {
         }
 
         if (this.triangles[newY][newX] == null){
+            this.completeAnimation()
+            this.addAnimation(currentTriangle, newTriangle);
             this.triangles[newY][newX] = newTriangle;
             this.group.add(this.triangles[newY][newX]);
         }
@@ -186,5 +211,51 @@ class TriangleController {
         this.currentY = newY;
         this.highlightCurrentTriangle();
     }
+
+
+    addAnimation(currentTriangle, newTriangle) {
+        // 삼각형의 시작 위치 및 회전 설정
+        let startPosition = { x: currentTriangle.position.x, y: currentTriangle.position.y, z: currentTriangle.position.z };
+        let endPosition = { x: newTriangle.position.x, y: newTriangle.position.y, z: newTriangle.position.z };
+    
+        let startRotation = { x: currentTriangle.rotation.x, y: currentTriangle.rotation.y, z: currentTriangle.rotation.z };
+        let endRotation = { x: newTriangle.rotation.x, y: newTriangle.rotation.y, z: newTriangle.rotation.z };
+    
+        // TWEEN 애니메이션 설정
+        let tweenPosition = new TWEEN.Tween(startPosition).to(endPosition, 500);  // 5000ms = 5초 동안 애니메이션
+        let tweenRotation = new TWEEN.Tween(startRotation).to(endRotation, 500);
+    
+        tweenPosition.onUpdate(() => {
+            console.log(newTriangle.position);
+            newTriangle.position.set(startPosition.x, startPosition.y, startPosition.z);
+        });
+    
+        tweenRotation.onUpdate(() => {
+            newTriangle.rotation.set(startRotation.x, startRotation.y, startRotation.z);
+        });
+    
+        // 애니메이션 시작
+        tweenPosition.start();
+        tweenRotation.start();
+    }
+
+    completeAnimation() {
+        TWEEN.getAll().forEach(tween => {
+            let targetObject = tween._object;  // Tween.js에서는 _object 속성을 통해 대상 객체에 접근합니다.
+            targetObject.position.set(tween._valuesEnd.x, tween._valuesEnd.y, tween._valuesEnd.z);
+            targetObject.rotation.set(tween._valuesEnd.rotationX, tween._valuesEnd.rotationY, tween._valuesEnd.rotationZ);
+            tween.stop();
+        });
+    }
+    
 }
+
+function animation() {
+    console.log('animate!');
+    TWEEN.update();
+    requestAnimationFrame(animation);
+}
+
+animation();
+
 export { TriangleController }
