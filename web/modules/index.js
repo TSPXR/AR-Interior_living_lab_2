@@ -1,5 +1,4 @@
-// import { GLTFLoader } from './three.js/loaders/GLTFLoader.js';
-// import { DepthTexture } from './three.js/three.module.js';
+import { RoomEnvironment } from "./three.js/environments/RoomEnvironment.js";
 import { TriangleController } from './triangle.js';
 
 const renderArea = document.querySelector("#camera-render-area");
@@ -10,7 +9,7 @@ const userAgent = navigator.userAgent.toLowerCase();
 
 let isIOS, isMobile;
 
-const triangleController = new TriangleController(0.5);
+const triangleController = new TriangleController(1.0);
 
 function getUserAgent() {
     if (userAgent.match("iphone") || userAgent.match("ipad") || userAgent.match("ipod") || userAgent.match("mac")) {
@@ -38,21 +37,29 @@ const imageTargetPipelineModule = () => {
         pointer.y = -(event.targetTouches[0].pageY / renderArea.clientHeight) * 2 + 1;
     }
 
-    const initXrScene = ({scene, camera}) => {
+    const initXrScene = ({scene, camera, renderer}) => {
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        const room = new RoomEnvironment();
+        scene.enviroment = pmremGenerator.fromScene(room).texture;
+
         scene.add(triangleController.group);
 
-        const light = new THREE.AmbientLight(0xFFFFFF);
-        scene.add(light);
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF);
+        scene.add(ambientLight);
 
+        const pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
+        pointLight.position.set( 1, 1, 10 );
+        scene.add( pointLight );
+
+        
         camera.position.set(0, 3, 0);
-
-
     }
 
     const showTarget = ({detail}) => {
         if (detail.name === "ar_marker_resized") {
             triangleController.group.position.copy(detail.position);
             triangleController.group.quaternion.copy(detail.rotation);
+            // triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
         }
     }
 
@@ -71,7 +78,7 @@ const imageTargetPipelineModule = () => {
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.8;
 
-        initXrScene({ scene, camera });
+        initXrScene({ scene, camera, renderer});
 
         canvas.addEventListener("touchstart", (event) => {
             onPointerMove(event);

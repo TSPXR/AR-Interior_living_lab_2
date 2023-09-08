@@ -69,8 +69,9 @@ class TriangleController {
         geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
         geometry.computeVertexNormals();
 
-        const textureLoader = new THREE.TextureLoader()
-        const triangleTexture = textureLoader.load('./assets/img/yellow.png')
+        const textureLoader = new THREE.TextureLoader();
+        const triangleTexture = textureLoader.load('./assets/img/yellow.png');
+        
 
         const material = new THREE.MeshPhongMaterial({ map: triangleTexture })
         material.shininess = 100
@@ -148,7 +149,7 @@ class TriangleController {
 
         if (this.triangles[newY][newX] == null){
             this.completeAnimation()
-            this.addAnimation(currentTriangle, newTriangle);
+            this.addAnimation(currentTriangle, newTriangle, 'vertical');
             this.triangles[newY][newX] = newTriangle;
             this.group.add(this.triangles[newY][newX]);
         }
@@ -201,7 +202,7 @@ class TriangleController {
 
         if (this.triangles[newY][newX] == null){
             this.completeAnimation()
-            this.addAnimation(currentTriangle, newTriangle);
+            this.addAnimation(currentTriangle, newTriangle, 'horizontal');
             this.triangles[newY][newX] = newTriangle;
             this.group.add(this.triangles[newY][newX]);
         }
@@ -213,30 +214,62 @@ class TriangleController {
     }
 
 
-    addAnimation(currentTriangle, newTriangle) {
-        // 삼각형의 시작 위치 및 회전 설정
-        let startPosition = { x: currentTriangle.position.x, y: currentTriangle.position.y, z: currentTriangle.position.z };
+    addAnimation(currentTriangle, newTriangle, direction) {
+        // Position 설정
+        let startPosition;
+        let middleRotation;
+        let startRotation;
+        if (direction == 'vertical'){
+            startPosition = { x: newTriangle.position.x, y: currentTriangle.position.y, z: currentTriangle.position.z };    
+
+            startRotation = { x: newTriangle.rotation.x, y: currentTriangle.rotation.y, z: newTriangle.rotation.z };
+            middleRotation = { x: Math.PI/2, y: currentTriangle.rotation.y, z: newTriangle.rotation.z };
+        }
+        else{
+            startPosition = { x: currentTriangle.position.x, y: newTriangle.position.y, z: currentTriangle.position.z };    
+            
+            startRotation = { x: newTriangle.rotation.x, y: currentTriangle.rotation.y, z: newTriangle.rotation.z };
+            middleRotation = { x: currentTriangle.rotation.x, y: Math.PI/2, z: newTriangle.rotation.z };
+            
+            
+        }
         let endPosition = { x: newTriangle.position.x, y: newTriangle.position.y, z: newTriangle.position.z };
-    
-        let startRotation = { x: currentTriangle.rotation.x, y: currentTriangle.rotation.y, z: currentTriangle.rotation.z };
+        
+        // Rotation 설정
         let endRotation = { x: newTriangle.rotation.x, y: newTriangle.rotation.y, z: newTriangle.rotation.z };
-    
+
         // TWEEN 애니메이션 설정
-        let tweenPosition = new TWEEN.Tween(startPosition).to(endPosition, 500);  // 5000ms = 5초 동안 애니메이션
-        let tweenRotation = new TWEEN.Tween(startRotation).to(endRotation, 500);
+        let tweenPosition = new TWEEN.Tween(startPosition).to(endPosition, 400);  // 5000ms = 5초 동안 애니메이션
+        
+        let tweenRotationFirst = new TWEEN.Tween(startRotation).to(middleRotation, 200);  // 5000ms = 5초 동안 애니메이션
+        let tweenRotationSecond = new TWEEN.Tween(middleRotation).to(endRotation, 200);  // 5000ms = 5초 동안 애니메이션
+        
+
+        // let tweenRotation = new TWEEN.Tween(startRotation).to(endRotation, 500);
     
         tweenPosition.onUpdate(() => {
-            console.log(newTriangle.position);
+            
             newTriangle.position.set(startPosition.x, startPosition.y, startPosition.z);
+        }).onComplete(() => {
+            console.log('position end');
         });
     
-        tweenRotation.onUpdate(() => {
+        tweenRotationFirst.onUpdate(() => {
             newTriangle.rotation.set(startRotation.x, startRotation.y, startRotation.z);
+            console.log('First rotation : ', newTriangle.rotation);
+        }).onComplete(() => {
+            tweenRotationSecond.start();
         });
+
+        tweenRotationSecond.onUpdate(() => {
+            newTriangle.rotation.set(middleRotation.x, middleRotation.y, middleRotation.z);
+            console.log('Second rotation : ', newTriangle.rotation);
+        })
+    
     
         // 애니메이션 시작
         tweenPosition.start();
-        tweenRotation.start();
+        tweenRotationFirst.start();
     }
 
     completeAnimation() {
@@ -251,7 +284,6 @@ class TriangleController {
 }
 
 function animation() {
-    console.log('animate!');
     TWEEN.update();
     requestAnimationFrame(animation);
 }
