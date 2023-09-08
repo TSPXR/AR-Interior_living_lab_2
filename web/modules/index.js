@@ -130,12 +130,28 @@ const onxrloaded = () => {
     XR8.run({canvas: renderArea});
 }
 
-saveButton.addEventListener('click', function() {
+saveButton.addEventListener('click', async function() {
     // Canvas의 내용을 이미지로 변환합니다.
     const link = document.createElement('a');
     link.download = 'canvas_image.png';
     link.href = renderArea.toDataURL();
     link.click();
+
+    const imageData = renderArea.toDataURL('image/png');
+    const response = await fetch('/save-image', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ imageData })
+    });
+
+    if (response.ok) {
+        console.log('Image saved successfully on the server.');
+    } else {
+        console.error('Error saving image on the server.');
+    }
+    
 });
 
 window.onload = async () => {

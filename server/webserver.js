@@ -13,6 +13,12 @@ const app = express();
 const cors = require("cors");
 const fs = require("fs");
 
+
+// File Server Configuration
+const path = require('path');
+
+
+
 //=================================================================
 // Set Server Configuration
 //=================================================================
@@ -27,6 +33,26 @@ const options = {
     requestCert: false,
     rejectUnauthorized: false
 };
+
+app.use(express.json({ limit: '10mb' })); 
+
+app.post('/save-image', (req, res) => {
+    const imageData = req.body.imageData;
+    if (!imageData) {
+        return res.status(400).send({ error: 'Image data is missing' });
+    }
+    const base64Data = imageData.replace(/^data:image\/png;base64,/, "");
+    
+    const savePath = path.join(__dirname, 'saved_images', `${Date.now()}.png`);
+    fs.writeFile(savePath, base64Data, 'base64', err => {
+        if (err) {
+            console.error("Error saving image:", err);
+            return res.status(500).send({ error: 'Failed to save image' });
+        }
+        console.log(`Image saved at ${savePath}`);
+        res.send({ message: 'Image saved successfully' });
+    });
+});
 
 //=================================================================
 // Function & Class
