@@ -211,6 +211,16 @@ html, body {
 	height: 100%;
 }
 
+.button {
+	width: 20vw;
+	height: 40px;
+}
+.captureButton {
+	position: absolute;
+	left: 70vw;
+	top: 8vh;
+	z-index: 101;
+}
 
 /* .deleteButton {
 	position: absolute;

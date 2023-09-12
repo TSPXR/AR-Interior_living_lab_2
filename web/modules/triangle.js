@@ -59,7 +59,13 @@ class TriangleController {
      */
     createTriangle() {
         let geometry = new THREE.BufferGeometry();
-    
+        
+        // let colors = new Float32Array([
+        //     0, 0.65, 0.31,  // 초록색 (상단 꼭지점)
+        //     0, 0.65, 0.31,  // 초록색 (왼쪽 하단 꼭짓점)
+        //     0, 0.65, 0.31,  // 초록색 (오른쪽 하단 꼭짓점)
+        // ]);
+
         let vertices = new Float32Array([
             0, this.triangleSize, 0, 
             -this.triangleSize * Math.sin(Math.PI / 3), -this.triangleSize * 0.5, 0,
@@ -67,17 +73,19 @@ class TriangleController {
         ]);
     
         geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        // geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         geometry.computeVertexNormals();
 
         const textureLoader = new THREE.TextureLoader();
-        const triangleTexture = textureLoader.load('./assets/img/yellow.png');
-        
-
+        const triangleTexture = textureLoader.load('./assets/img/green.png');
+    
         const material = new THREE.MeshPhongMaterial({ map: triangleTexture })
-        material.shininess = 100
-        material.specular = new THREE.Color(0x1188ff)
+        // let material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+        // material.shininess = 100
+        // material.specular = new THREE.Color(0x1188ff)
         
         let triangle = new THREE.Mesh(geometry, material);
+        // triangle.rotation.x = Math.PI / 2;
         return triangle;
     }
 

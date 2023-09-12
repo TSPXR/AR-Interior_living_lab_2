@@ -1,4 +1,3 @@
-import { RoomEnvironment } from "./three.js/environments/RoomEnvironment.js";
 import { TriangleController } from './triangle.js';
 
 const renderArea = document.querySelector("#camera-render-area");
@@ -9,7 +8,9 @@ const userAgent = navigator.userAgent.toLowerCase();
 
 let isIOS, isMobile;
 
-const triangleController = new TriangleController(1.0);
+const triangleController = new TriangleController(1.2);
+// Three.js Group x축 기준 90도 회전
+const additionalRotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(90), 0, 0));
 
 function getUserAgent() {
     if (userAgent.match("iphone") || userAgent.match("ipad") || userAgent.match("ipod") || userAgent.match("mac")) {
@@ -38,29 +39,33 @@ const imageTargetPipelineModule = () => {
     }
 
     const initXrScene = ({scene, camera, renderer}) => {
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        const room = new RoomEnvironment();
-        scene.enviroment = pmremGenerator.fromScene(room).texture;
-
+        triangleController.group.rotation.x = Math.PI/2;
         scene.add(triangleController.group);
 
         const ambientLight = new THREE.AmbientLight(0xFFFFFF);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
-        pointLight.position.set( 1, 1, 10 );
-        scene.add( pointLight );
+        // const pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
+        // pointLight.position.set( 1, 1, 10 );
+        // scene.add( pointLight );
 
-        
-        camera.position.set(0, 3, 0);
+        camera.position.set(0, 3, 5);
     }
 
     const showTarget = ({detail}) => {
-        if (detail.name === "ar_marker_resized") {
-            triangleController.group.position.copy(detail.position);
-            triangleController.group.quaternion.copy(detail.rotation);
-            // triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
-        }
+        // if (detail.name === "ar_marker_resized") {
+        //     triangleController.group.position.copy(detail.position);
+        //     triangleController.group.quaternion.copy(detail.rotation);
+        //     triangleController.group.quaternion.multiply(additionalRotation);
+        //     // triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
+        // }
+
+        
+        triangleController.group.position.copy(detail.position);
+        triangleController.group.quaternion.copy(detail.rotation);
+        triangleController.group.quaternion.multiply(additionalRotation);
+        // triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
+        
     }
 
     const hideTarget = ({detail}) => {
