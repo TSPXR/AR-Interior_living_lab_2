@@ -8,7 +8,7 @@ const userAgent = navigator.userAgent.toLowerCase();
 
 let isIOS, isMobile;
 
-const triangleController = new TriangleController(1.2);
+const triangleController = new TriangleController(0.4);
 // Three.js Group x축 기준 90도 회전
 const additionalRotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(90), 0, 0));
 
@@ -44,35 +44,38 @@ const imageTargetPipelineModule = () => {
 
         const ambientLight = new THREE.AmbientLight(0xFFFFFF);
         scene.add(ambientLight);
-
-        // const pointLight = new THREE.PointLight( 0xffffff, 1, 100 );
-        // pointLight.position.set( 1, 1, 10 );
-        // scene.add( pointLight );
-
         camera.position.set(0, 3, 5);
     }
 
+    /**
+     * 마커 인식 시 동작 이벤트
+     * @param {string} detail - 마커 ID
+     */
     const showTarget = ({detail}) => {
+        // 특정 마커 인식 시
         // if (detail.name === "ar_marker_resized") {
-        //     triangleController.group.position.copy(detail.position);
-        //     triangleController.group.quaternion.copy(detail.rotation);
-        //     triangleController.group.quaternion.multiply(additionalRotation);
-        //     // triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
         // }
 
-        
         triangleController.group.position.copy(detail.position);
+        triangleController.group.position.y += 0.2;
         triangleController.group.quaternion.copy(detail.rotation);
         triangleController.group.quaternion.multiply(additionalRotation);
-        // triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
-        
+        triangleController.group.scale.set(detail.scale, detail.scale, detail.scale);
     }
 
+    /**
+     * 마커 인식 실패 시 동작 이벤트
+     * @param {string} detail - 마커 ID
+     */
     const hideTarget = ({detail}) => {
         if (detail.name === "ar_marker_resized") {
         }
     }
 
+    /**
+     * AR 체험을 위한 카메라/렌더링 매핑
+     * @param {string} canvas - 렌더링될 Main 캔버스
+     */
     const onStart = ({canvas}) => {
         loadingArea.style.backgroundColor = "rgb(0, 0, 0, 0.45)";
 
@@ -135,14 +138,15 @@ const onxrloaded = () => {
     XR8.run({canvas: renderArea});
 }
 
+// 카메라 버튼 클릭 시 이미저 저장 및 서버 전송
 saveButton.addEventListener('click', async function() {
-    // Canvas의 내용을 이미지로 변환합니다.
     const link = document.createElement('a');
-    link.download = 'canvas_image.png';
+    link.download = `${Date.now()}.png`;
+    
     link.href = renderArea.toDataURL();
     link.click();
-
-    const imageData = renderArea.toDataURL('image/png');
+    
+    const imageData = renderArea.toDataURL('image/png').replace("image/png", "image/octet-stream");
     const response = await fetch('/save-image', {
         method: 'POST',
         headers: {
