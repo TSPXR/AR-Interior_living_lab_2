@@ -212,13 +212,13 @@ html, body {
 }
 
 .button {
-	width: 20vw;
-	height: 40px;
+	width: 15vw;
+	height: 15vh;
 }
 .captureButton {
 	position: absolute;
-	left: 70vw;
-	top: 8vh;
+	left: 80vw;
+	top: 5vh;
 	z-index: 101;
 }
 
